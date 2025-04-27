@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+	  "target": "ES6",                         // Set to ES6 for compatibility
+	  "module": "commonjs",                    // CommonJS module format
+	  "outDir": "./dist",                      // Output directory for compiled files
+	  "rootDir": "./src",                      // Root directory for your source files
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "strict": true
+	},
+	"include": ["src/**/*"]                     // Ensure all TypeScript files are included
+  }
+  
