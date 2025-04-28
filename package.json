@@ -32,5 +32,13 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nadil1995/domain-launch-pad-backend-2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nadil1995/domain-launch-pad-backend-2/issues"
+  },
+  "homepage": "https://github.com/nadil1995/domain-launch-pad-backend-2#readme",
   "description": ""
 }

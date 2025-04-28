@@ -6,6 +6,11 @@ import domainRoutes from './src/routes/domainRoutes';
 import authRoutes from './src/routes/authRoutes';
 import { userRoutes } from './src/routes/userRoutes';
 import { Request, Response, NextFunction } from 'express';
+import profileRoutes from './src/routes/profileRoutes';
+
+
+
+
 
 dotenv.config();
 
@@ -57,3 +62,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
   res.status(500).json({ message: 'Internal Server Error' });
 });
+
+
+app.use('/api/profile', profileRoutes);

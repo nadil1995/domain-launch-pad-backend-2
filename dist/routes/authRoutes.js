@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';  // Your User model
 
 // Signup controller
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
