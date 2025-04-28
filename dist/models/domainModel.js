@@ -36,8 +36,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Domain = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const DomainSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    url: { type: String, required: true },
+    domainName: { type: String, required: true },
+    user: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
+    dnsStatus: { type: String, enum: ['Pending', 'Verified', 'Failed'], default: 'Pending' },
     isVerified: { type: Boolean, default: false },
 });
 exports.Domain = mongoose_1.default.model('Domain', DomainSchema);
+exports.default = exports.Domain;

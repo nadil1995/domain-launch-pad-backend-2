@@ -1,46 +1,37 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';  // Your User model
-
-// Signup controller
-export const signup = async (req, res) => {
-    const { name, email, password } = req.body;
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// src/routes/authRoutes.ts
+const express_1 = __importDefault(require("express"));
+const authController_1 = require("../controllers/authController");
+const router = express_1.default.Router();
+// POST request to /signup
+router.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Check if the user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create a new user
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword,
-        });
-
-        // Save user to the database
-        await newUser.save();
-
-        // Generate a JWT token
-        const token = jwt.sign({ id: newUser._id }, 'your_jwt_secret', { expiresIn: '1h' });
-
-        // Send the response with the token and user info
-        res.status(201).json({
-            token,
-            user: {
-                id: newUser._id,
-                name: newUser.name,
-                email: newUser.email,
-            },
-        });
-    } catch (error) {
-        console.error('Error in signup:', error);
+        yield (0, authController_1.signup)(req, res);
+    }
+    catch (error) {
         res.status(500).json({ message: 'Internal Server Error', error });
     }
-};
+}));
+// POST request to /login
+router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, authController_1.login)(req, res);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error });
+    }
+}));
+exports.default = router;

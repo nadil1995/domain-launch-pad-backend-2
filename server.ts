@@ -1,42 +1,38 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import domainRoutes from './src/routes/domainRoutes';
-import authRoutes from './src/routes/authRoutes';
-import { userRoutes } from './src/routes/userRoutes';
-import { Request, Response, NextFunction } from 'express';
-import profileRoutes from './src/routes/profileRoutes';
-
-
-
-
-
 dotenv.config();
 
+import mongoose from 'mongoose';
+import express, { Request, Response, NextFunction } from 'express'; // ✅ Import types here
+import cors from 'cors';
+
+import domainRoutes from './src/routes/domainRoutes'; 
+import authRoutes from './src/routes/authRoutes'; 
+import userRoutes from './src/routes/userRoutes'; 
+import profileRoutes from './src/routes/profileRoutes'; 
+
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5003;
 
 // Middleware
+app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:8080', // Frontend URL
-  methods: ['GET', 'POST'],
+  origin: '*',  
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json()); // Parse JSON bodies
-
 // Routes
 app.use('/api/domains', domainRoutes);
-app.use('/api/auth', authRoutes); // Mount the auth routes
-app.use('/api/users', userRoutes); // Mount the user routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/profile', profileRoutes);
 
 // MongoDB Connection
 const mongoURI = process.env.MONGO_URI as string;
 
 if (!mongoURI) {
   console.error('MONGO_URI is not defined in .env');
-  process.exit(1); // Exit if MONGO_URI is not defined
+  process.exit(1);
 }
 
 mongoose.connect(mongoURI)
@@ -44,7 +40,7 @@ mongoose.connect(mongoURI)
     console.log('MongoDB Connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch(err => console.error(err));
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Graceful shutdown
 process.on('SIGINT', () => {
@@ -59,9 +55,6 @@ process.on('SIGINT', () => {
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+  console.error('Global Error Handler:', err);
   res.status(500).json({ message: 'Internal Server Error' });
 });
-
-
-app.use('/api/profile', profileRoutes);

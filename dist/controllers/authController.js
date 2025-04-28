@@ -14,37 +14,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.signup = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-// Correct import for User model in userRoutes.ts and authController.ts
-const User_1 = __importDefault(require("../models/User")); // Adjust the path if needed
-// Signup Controller
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const User_1 = __importDefault(require("../models/User"));
+// Signup controller
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, email, password } = req.body;
-    // Basic validation
-    if (!username || !email || !password) {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
         return res.status(400).json({ message: 'Please provide all fields' });
     }
-    // Hash password
-    const salt = yield bcryptjs_1.default.genSalt(10);
-    const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
-    // Logic to save user
-    const user = new User_1.default({
-        username,
-        email,
-        password: hashedPassword, // Save the hashed password
-    });
     try {
-        yield user.save();
-        return res.status(201).json({ message: 'User created successfully', user });
+        const existingUser = yield User_1.default.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
+        const newUser = new User_1.default({ name, email, password: hashedPassword });
+        yield newUser.save();
+        const token = jsonwebtoken_1.default.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(201).json({
+            token,
+            user: { id: newUser._id, name: newUser.name, email: newUser.email },
+        });
     }
     catch (error) {
-        return res.status(500).json({ message: 'Error creating user', error });
+        console.error('Error in signup:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 exports.signup = signup;
-// Login Controller
+// Login controller (just for completeness)
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    // Add logic for login (e.g., validate email, check password, generate JWT)
-    return res.status(200).json({ message: 'Login successful' });
+    try {
+        const user = yield User_1.default.findOne({ email });
+        if (!user)
+            return res.status(400).json({ message: 'User not found' });
+        const isMatch = yield bcryptjs_1.default.compare(password, user.password);
+        if (!isMatch)
+            return res.status(400).json({ message: 'Invalid credentials' });
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    }
+    catch (error) {
+        console.error('Error in login:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 exports.login = login;

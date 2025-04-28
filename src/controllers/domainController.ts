@@ -1,28 +1,63 @@
 import { Request, Response } from 'express';
+
+// Extend the Request interface to include the user property
+interface CustomRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 import { Domain } from '../models/domainModel';
 import mongoose from 'mongoose';
 
+interface DomainType {
+  id: string;
+  domainName: string;
+}
+import { v4 as uuidv4 } from 'uuid'; // To generate unique ids
 // GET all domains
 export const getDomains = async (req: Request, res: Response) => {
   try {
-    const domains = await Domain.find();
-    res.status(200).json(domains);
-  } catch (error) {
+  const domains = await Domain.find();
+  res.status(200).json(domains);
+} catch (error) {
     res.status(500).json({ message: 'Failed to fetch domains' });
   }
 };
 
 // POST a new domain
-export const createDomain = async (req: Request, res: Response) => {
+export const createDomain = async (req: CustomRequest, res: Response) => {
+  // console.log('1. Received create domain request');
+
   try {
-    const { name, url } = req.body;
-    const newDomain = new Domain({ name, url });
+  //   console.log('2. Request body:', req.body);
+  //   console.log('3. User:', req.user);
+
+    const { name } = req.body;
+    const domainName = name;
+    const userId = req.user?.id || '660b93e6b5f4c2f90491e8a1'; // <-- Hardcoded user id for testing
+
+    if (!domainName || !userId) {
+      return res.status(400).json({ success: false, message: 'Domain name and User ID are required' });
+    }
+
+    const newDomain = new Domain({
+      domainName,
+      user: userId,
+      dnsStatus: 'Pending',
+      isVerified: false,
+    });
+
+    // console.log('4. Saving domain...');
     await newDomain.save();
-    res.status(201).json(newDomain);
+    // console.log('5. Domain saved successfully.');
+
+    res.status(201).json({ success: true, data: newDomain });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create domain' });
+    console.error('Error at create domain:', error);
+    res.status(500).json({ success: false, message: 'Failed to create domain', error: (error as Error).message });
   }
 };
+
 
 // Get a single domain by ID
 export const getDomainById = async (req: Request, res: Response) => {

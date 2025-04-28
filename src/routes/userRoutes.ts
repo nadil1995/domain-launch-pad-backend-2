@@ -8,3 +8,4 @@ router.get('/profile', (req, res) => {
 });
 
 export const userRoutes = router; // Exporting the renamed router
+export default router;
