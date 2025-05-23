@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+if (!process.env.JWT_SECRET) {
+    console.error('FATAL ERROR: JWT_SECRET is not defined.');
+    process.exit(1);
+}
+
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -10,7 +15,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
         (req as any).user = decoded;
         next();
     } catch (err) {

@@ -6,20 +6,12 @@ const router = express.Router();
 
 // POST request to /signup
 router.post('/signup', async (req: Request, res: Response) => {
-    try {
-        await signup(req, res);
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error', error });
-    }
+    await signup(req, res);
 });
 
 // POST request to /login
 router.post('/login', async (req: Request, res: Response) => {
-    try {
-        await login(req, res);
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error', error });
-    }
+    await login(req, res);
 });
 
 export default router;

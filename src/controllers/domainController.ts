@@ -9,11 +9,6 @@ interface CustomRequest extends Request {
 import { Domain } from '../models/domainModel';
 import mongoose from 'mongoose';
 
-interface DomainType {
-  id: string;
-  domainName: string;
-}
-import { v4 as uuidv4 } from 'uuid'; // To generate unique ids
 // GET all domains
 export const getDomains = async (req: Request, res: Response) => {
   try {
@@ -34,15 +29,19 @@ export const createDomain = async (req: CustomRequest, res: Response) => {
 
     const { name } = req.body;
     const domainName = name;
-    const userId = req.user?.id || '660b93e6b5f4c2f90491e8a1'; // <-- Hardcoded user id for testing
+    const userId = req.user?.id;
 
-    if (!domainName || !userId) {
-      return res.status(400).json({ success: false, message: 'Domain name and User ID are required' });
+    if (!userId) {
+        return res.status(401).json({ success: false, message: 'User not authenticated or User ID missing' });
+    }
+
+    if (!domainName) {
+      return res.status(400).json({ success: false, message: 'Domain name is required' });
     }
 
     const newDomain = new Domain({
       domainName,
-      user: userId,
+      user: new mongoose.Types.ObjectId(userId),
       dnsStatus: 'Pending',
       isVerified: false,
     });
